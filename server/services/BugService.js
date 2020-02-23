@@ -8,21 +8,27 @@ class BugService {
     return await _repository.find({});
   }
   async findById(id) {
-    return await _repository.find({ id })
+    return await _repository.findById(id)
   }
   async edit(id, update) {
+    let bug = await _repository.findById(id);
+    // @ts-ignore
+    if (bug.closed) {
+      return "This bug is closed!"
+    }
     return await _repository.findByIdAndUpdate(id, update, { new: true })
   }
   async create(body) {
     return await _repository.create(body)
   }
   async close(id) {
-    let bug = await _repository.find({ id })
     let date = new Date();
-    bug["closed"] = true;
+    let bug = {
+      closed: true,
+      closedDate: `${date.getMonth()}-${date.getDate()}-${date.getFullYear()}`
+    }
     //I don't want to code out the if statements to make the date more official, so here it is.
-    bug["closedDate"] = `${date.getMonth}/${date.getDay}/${date.getFullYear}`
-    return await _repository.findByIdAndUpdate(id, bug);
+    return await _repository.findByIdAndUpdate(id, bug, { new: true });
   }
 }
 
